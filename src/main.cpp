@@ -7,7 +7,7 @@
 #define BUFFER_LEN 50
 #define FILTER_ORDER 50 
 #define ADC_MAX 1023 
-#define RESISTENCIA 10000
+#define RESISTENCIA (float) 10000.0
 #define COEF_A (float) -1.138
 #define COEF_B (float) exp(16.178)
 
