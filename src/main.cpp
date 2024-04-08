@@ -126,7 +126,7 @@ float getFiltrado() {
 
         if ( i <= contador) resultado += leituras[i]*filtro[((contador - i) % BUFFER_LEN)];
 
-        else resulleituras[contador]tado += leituras[i]*filtro[aux - i];
+        else resultado += leituras[i]*filtro[aux - i];
     }
 
     return resultado;
