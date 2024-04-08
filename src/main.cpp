@@ -100,8 +100,8 @@ void setRegistros() {
     // habilita fast-PWM no Timer3 - modo 15
     TCCR3A = 0x0F;      // saída invertida em OC3C = pino 3 // 0x0B para saída sem inversão
     // TCCR3B = 0x1B;      // presc = 64
-    TCCR3B = 0x1A; 
-    // OCR3A = 0xF9;       // 1 kHz;
+    TCCR3B = 0x1A;         // presc = 8
+    // OCR3A = 0xF9;       // 1 kHz; -> presc = 64
     OCR3A = 0x03FF;        // 1953,125 Hz 
 
     // // habilita phase corret-PWM no Timer3 - modo 11
