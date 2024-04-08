@@ -3,6 +3,7 @@
 #include "fir_coef.h" 
 
 #define PIN_LED 2
+#define PIN_PWM 3
 #define PIN_LEITURA A0
 #define BUFFER_LEN 50
 #define FILTER_ORDER 50 
@@ -24,6 +25,9 @@ uint16_t getLux();
 void setup() {
 
     pinMode(PIN_LED, OUTPUT); 
+    pinMode(PIN_PWM, OUTPUT);
+
+    Serial.begin(115200);
 
     // inicializa todos os membros de leituras[] para zero
     for (uint8_t i = 0; i < BUFFER_LEN; i ++) leituras[i] = 0;
@@ -35,19 +39,24 @@ void loop() {
 
     if (fflag) {
 
-        Serial.println(getFiltrado());
+        uint16_t tmp = getFiltrado(); 
+
+        OCR3C = (uint8_t)((float) tmp * 249.0 / 1023.0);
+
+        Serial.print("OCR3C: ");
+        Serial.println(OCR3C); 
 
         fflag = false;
-    }
+    } 
 }  
 
 // rotina de interrupção do Timer 1 com amostragem
 ISR(TIMER1_COMPA_vect) {
 
-    // linhas de teste
-    static bool ON = true; 
-    digitalWrite(PIN_LED, ON); 
-    ON = !ON; 
+    // // linhas de teste
+    // static bool ON = true; 
+    // digitalWrite(PIN_LED, ON); 
+    // ON = !ON; 
 
     // amostragem
     if (contador < BUFFER_LEN) {
@@ -69,18 +78,26 @@ ISR(TIMER1_COMPA_vect) {
     contador++; 
 }
 
-// configura os registros para interrupção no Timer1
-void setRegistros() { 
+// configura os registros para interrupção no Timer1 e PWM no Timer3
+void setRegistros() {   
 
     cli();
- 
-    TCCR1A = 0x00;       // CTC mode, prescaler = 256
-    TCCR1B = 0x0C;
-    // OCR1A = 0xF423;     // 0.5 Hz 
-    // OCR1A = 0x0C34;     // 1 Hz
-    // OCR1A = 0x7A11;  // 10 Hz
-    OCR1A = 0x0619;     // 20 Hz 
+
+    // habilita interrupção no TIMER1
+    TCCR1A = 0x00;      // CTC mode, 
+    TCCR1B = 0x0C;      // prescaler = 256
+    // OCR1A = 0xF423;    // 0.5 Hz 
+    // OCR1A = 0x07A;     // 1 Hz
+    // OCR1A = 0x0C34;  // 10 Hz
+    // OCR1A = 0x0619;     // 20 Hz 
+    OCR1A = 0x0138;    // 100 Hz
     TIMSK1 |= 1 << 1;
+
+    // habilita fast-PWM no Timer3 
+    TCCR3A = 0x0F;      // saída invertida em OC3C = pino 3 // 0x0B para saída sem inversão
+    TCCR3B = 0x1B;      // presc = 64 
+    OCR3A = 0xF9;       // 1 kHz;
+    OCR3C = 0x7D;       // inicializa duty cycle em 50% 
 
     // desabilita a entrada digital nos pinos de  A0 à A15
     DIDR0 = 0x00;
