@@ -41,7 +41,11 @@ void loop() {
 
         uint16_t tmp = getFiltrado(); 
 
-        OCR3C = (uint8_t)((float) tmp * 249.0 / 1023.0);
+        // // MODO FAST-PWM. Top = 249 -> 1 kHz
+        // OCR3C = (uint8_t)((float) tmp * 249.0 / 1023.0);
+
+        // MODO FAST-PWM. Top = 1023 -> 1953,125 Hz
+        OCR3C = tmp; 
 
         Serial.print("OCR3C: ");
         Serial.println(OCR3C); 
@@ -88,16 +92,22 @@ void setRegistros() {
     TCCR1B = 0x0C;      // prescaler = 256
     // OCR1A = 0xF423;    // 0.5 Hz 
     // OCR1A = 0x07A;     // 1 Hz
-    // OCR1A = 0x0C34;  // 10 Hz
-    // OCR1A = 0x0619;     // 20 Hz 
+    // OCR1A = 0x0C34;    // 10 Hz
+    // OCR1A = 0x0619;    // 20 Hz 
     OCR1A = 0x0138;    // 100 Hz
     TIMSK1 |= 1 << 1;
 
-    // habilita fast-PWM no Timer3 
+    // habilita fast-PWM no Timer3 - modo 15
     TCCR3A = 0x0F;      // saída invertida em OC3C = pino 3 // 0x0B para saída sem inversão
-    TCCR3B = 0x1B;      // presc = 64 
-    OCR3A = 0xF9;       // 1 kHz;
-    OCR3C = 0x7D;       // inicializa duty cycle em 50% 
+    // TCCR3B = 0x1B;      // presc = 64
+    TCCR3B = 0x1A; 
+    // OCR3A = 0xF9;       // 1 kHz;
+    OCR3A = 0x03FF;        // 1953,125 Hz 
+
+    // // habilita phase corret-PWM no Timer3 - modo 11
+    // TCCR3A = 0x0F;      // saída invertida em OC3C = pino 3 // 0x0B para saída sem inversão
+    // TCCR3B = 0x12;      // presc = 8 
+    // OCR3A = 0x03FF;       // 977,52 kHz; 
 
     // desabilita a entrada digital nos pinos de  A0 à A15
     DIDR0 = 0x00;
@@ -116,7 +126,7 @@ float getFiltrado() {
 
         if ( i <= contador) resultado += leituras[i]*filtro[((contador - i) % BUFFER_LEN)];
 
-        else resultado += leituras[i]*filtro[aux - i];
+        else resulleituras[contador]tado += leituras[i]*filtro[aux - i];
     }
 
     return resultado;
