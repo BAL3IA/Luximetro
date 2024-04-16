@@ -39,16 +39,16 @@ void loop() {
 
     if (fflag) {
 
-        uint16_t tmp = getFiltrado(); 
+        // uint16_t tmp = getFiltrado(); 
 
         // // MODO FAST-PWM. Top = 249 -> 1 kHz
         // OCR3C = (uint8_t)((float) tmp * 249.0 / 1023.0);
 
         // MODO FAST-PWM. Top = 1023 -> 1953,125 Hz
-        OCR3C = tmp; 
+        OCR3C = filtrado; 
 
-        Serial.print("OCR3C: ");
-        Serial.println(OCR3C); 
+        Serial.print("Intensidade Luminosa: ");
+        Serial.println(getLux()); 
 
         fflag = false;
     } 
